@@ -38,14 +38,26 @@ GEM
       i18n (~> 0.7)
       minitest (~> 5.1)
       tzinfo (~> 1.1)
+    addressable (2.5.0)
+      public_suffix (~> 2.0, >= 2.0.2)
     arel (8.0.0)
     builder (3.2.3)
     byebug (9.0.6)
     concurrent-ruby (1.0.5)
+    crack (0.4.3)
+      safe_yaml (~> 1.0.0)
+    database_cleaner (1.4.1)
+    diff-lcs (1.2.5)
     erubi (1.6.0)
+    factory_girl (4.7.0)
+      activesupport (>= 3.0.0)
+    factory_girl_rails (4.7.0)
+      factory_girl (~> 4.7.0)
+      railties (>= 3.0.0)
     ffi (1.9.18)
     globalid (0.3.7)
       activesupport (>= 4.1.0)
+    hashdiff (0.3.0)
     i18n (0.8.1)
     listen (3.1.5)
       rb-fsevent (~> 0.9, >= 0.9.4)
@@ -64,6 +76,7 @@ GEM
     nio4r (2.0.0)
     nokogiri (1.7.0.1)
       mini_portile2 (~> 2.1.0)
+    public_suffix (2.0.5)
     puma (3.8.1)
     rack (2.0.1)
     rack-test (0.6.3)
@@ -95,7 +108,27 @@ GEM
     rb-fsevent (0.9.8)
     rb-inotify (0.9.8)
       ffi (>= 0.5.0)
+    rspec-core (3.5.3)
+      rspec-support (~> 3.5.0)
+    rspec-expectations (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-mocks (3.5.0)
+      diff-lcs (>= 1.2.0, < 2.0)
+      rspec-support (~> 3.5.0)
+    rspec-rails (3.5.2)
+      actionpack (>= 3.0)
+      activesupport (>= 3.0)
+      railties (>= 3.0)
+      rspec-core (~> 3.5.0)
+      rspec-expectations (~> 3.5.0)
+      rspec-mocks (~> 3.5.0)
+      rspec-support (~> 3.5.0)
+    rspec-support (3.5.0)
     ruby_dep (1.5.0)
+    safe_yaml (1.0.4)
+    shoulda-matchers (3.1.1)
+      activesupport (>= 4.0.0)
     spring (2.0.1)
       activesupport (>= 4.2)
     spring-watcher-listen (2.0.1)
@@ -113,6 +146,10 @@ GEM
     thread_safe (0.3.6)
     tzinfo (1.2.2)
       thread_safe (~> 0.1)
+    webmock (2.1.0)
+      addressable (>= 2.3.6)
+      crack (>= 0.3.2)
+      hashdiff
     websocket-driver (0.6.5)
       websocket-extensions (>= 0.1.0)
     websocket-extensions (0.1.2)
@@ -122,13 +159,18 @@ PLATFORMS
 
 DEPENDENCIES
   byebug
+  database_cleaner
+  factory_girl_rails
   listen (>= 3.0.5, < 3.2)
   puma (~> 3.7)
   rails (~> 5.1.0.beta1)
+  rspec-rails
+  shoulda-matchers
   spring
   spring-watcher-listen (~> 2.0.0)
   sqlite3
   tzinfo-data
+  webmock
 
 BUNDLED WITH
    1.13.6
