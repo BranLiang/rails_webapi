@@ -1,7 +1,7 @@
 FactoryGirl.define do
   factory :author do
-    given_name "MyString"
-    family_name "MyString"
+    given_name "Pat"
+    family_name "Steve"
   end
 
   factory :michael_hartl, class: Author do
