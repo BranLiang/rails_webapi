@@ -2,7 +2,7 @@ require 'rails_helper'
 
 RSpec.describe 'FieldPicker' do
   let(:rails_tutorial) { create(:ruby_on_rails_tutorial) }
-  let(:params) { { fields: 'id,title,subtitle' } }
+  let(:params) { { fields: 'id,title' } }
   let(:presenter) { BookPresenter.new(rails_tutorial, params) }
   let(:field_picker) { FieldPicker.new(presenter) }
 
@@ -13,7 +13,7 @@ RSpec.describe 'FieldPicker' do
   end
 
   describe '#pick' do
-    context 'with the "fields" parameter containing "id, title, subtitle"' do
+    context 'with the "fields" parameter containing "id, title"' do
       it 'updates the presenter "data" with book "id" and "title"' do
         expect(field_picker.pick.data).to eq({
           'id' => rails_tutorial.id,
@@ -44,6 +44,16 @@ RSpec.describe 'FieldPicker' do
           'title' => 'Ruby on Rails Tutorial',
           'author_id' => rails_tutorial.author_id
         })
+      end
+    end
+
+    context 'with invalid attributes "fid"' do
+      let(:params) { { fields: 'fid,title' } }
+
+      it 'raise a "RepresentationBuilderError"' do
+        expect{ field_picker.pick }.to(
+          raise_error(RepresentationBuilderError)
+        )
       end
     end
   end
