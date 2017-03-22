@@ -140,8 +140,8 @@ RSpec.describe 'Publishers', tyep: :request do
     end
 
     describe 'filtering' do
-      context 'with valid filtering param "q[name_cont]=Reilly"' do
-        before { get '/api/publishers?q[name_cont]=Reilly' }
+      context 'with valid filtering param "q[name_cont]=reilly"' do
+        before { get '/api/publishers?q[name_cont]=reilly' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -155,7 +155,20 @@ RSpec.describe 'Publishers', tyep: :request do
           expect(json_body['data'].first['id']).to eq oreilly.id
         end
       end
-      context 'with invalid filtering param "q[fname_cont]=Reilly"' do
+      context 'with invalid filtering param "q[fname_cont]=reilly"' do
+        before { get '/api/publishers?q[fname_cont]=reilly' }
+
+        it 'receives status 400' do
+          expect(response.status).to eq 400
+        end
+
+        it 'receives an error' do
+          expect(json_body['error']).to_not be nil
+        end
+
+        it 'receives invalid_params "q[fname_cont]=reilly"' do
+          expect(json_body['error']['invalid_params']).to eq 'q[fname_cont]=reilly'
+        end
       end
     end
   end
