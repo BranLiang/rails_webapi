@@ -2,6 +2,7 @@ class ApiKey < ApplicationRecord
   before_validation :generate_key, on: :create
   validates :key, presence: true
   validates :active, presence: true
+  validates :access_key, presence: true
   scope :activated, -> { where(active: true) }
 
   def disable
@@ -12,5 +13,7 @@ class ApiKey < ApplicationRecord
 
   def generate_key
     self.key = SecureRandom.hex
+    self.access_key = SecureRandom.hex
   end
+
 end

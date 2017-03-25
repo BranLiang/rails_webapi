@@ -3,7 +3,7 @@ require 'rails_helper'
 RSpec.describe 'Publishers', tyep: :request do
   let(:api_key) { ApiKey.create }
   let(:headers) do
-     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.key}" }
+     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
   end
   let(:oreilly) { create(:publisher) }
   let(:dev_media) { create(:super_books) }
