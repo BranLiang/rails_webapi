@@ -2,6 +2,11 @@ require 'rails_helper'
 
 RSpec.describe 'Authors', type: :request do
 
+  let(:api_key) { ApiKey.create }
+  let(:headers) do
+     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.key}" }
+  end
+
   let(:pat) { create(:author) }
   let(:michael) { create(:michael_hartl) }
   let(:sam) { create(:sam_ruby) }
@@ -11,7 +16,7 @@ RSpec.describe 'Authors', type: :request do
     before { authors }
 
     context 'default behavior' do
-      before { get '/api/authors' }
+      before { get '/api/authors', headers: headers }
 
       it 'receives HTTP status 200' do
         expect(response.status).to eq 200
@@ -28,7 +33,7 @@ RSpec.describe 'Authors', type: :request do
 
     describe 'field picking' do
       context 'with the fields parameter' do
-        before { get '/api/authors?fields=given_name' }
+        before { get '/api/authors?fields=given_name', headers: headers }
 
         it 'gets authors with only given_name' do
           json_body['data'].each do |author|
@@ -37,7 +42,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'without the field parameter' do
-        before { get '/api/authors' }
+        before { get '/api/authors', headers: headers }
 
         it 'gets authors with all entities' do
           json_body['data'].each do |author|
@@ -46,7 +51,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'with invalid field name "fid"' do
-        before { get '/api/authors?fields=fid,family_name' }
+        before { get '/api/authors?fields=fid,family_name', headers: headers }
 
         it 'get response status 400' do
           expect(response.status).to eq 400
@@ -65,7 +70,7 @@ RSpec.describe 'Authors', type: :request do
 
     describe 'pagination' do
       context 'when asking for the first page' do
-        before { get('/api/authors?page=1&per=2') }
+        before { get('/api/authors?page=1&per=2', headers: headers) }
 
         it 'receives HTTP status 200' do
           expect(response.status).to eq 200
@@ -82,7 +87,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'when asking for the second page' do
-        before { get('/api/authors?page=2&per=2') }
+        before { get('/api/authors?page=2&per=2', headers: headers) }
 
         it "receives HTTP status 200" do
           expect(response.status).to eq 200
@@ -93,7 +98,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'when sending invalid "page" and "per" parameters' do
-        before { get('/api/authors?page=fpage&per=2') }
+        before { get('/api/authors?page=fpage&per=2', headers: headers) }
 
         it 'receives response status 400 Bad Request' do
           expect(response.status).to eq 400
@@ -111,7 +116,7 @@ RSpec.describe 'Authors', type: :request do
 
     describe 'sorting' do
       context 'with valid column name "id"' do
-        before { get '/api/authors?sort=id&dir=desc' }
+        before { get '/api/authors?sort=id&dir=desc', headers: headers }
 
         it 'receives HTTP status 200' do
           expect(response.status).to eq 200
@@ -126,7 +131,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'with invalid column name "fid"' do
-        before { get '/api/authors?sort=fid&dir=desc' }
+        before { get '/api/authors?sort=fid&dir=desc', headers: headers }
 
         it 'receives status 400 Bad Request' do
           expect(response.status).to eq 400
@@ -144,7 +149,7 @@ RSpec.describe 'Authors', type: :request do
 
     describe 'filtering' do
       context 'with valid filtering param "q[given_name_cont]=Pat"' do
-        before { get '/api/authors?q[given_name_cont]=Pat' }
+        before { get '/api/authors?q[given_name_cont]=Pat', headers: headers }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -159,7 +164,7 @@ RSpec.describe 'Authors', type: :request do
         end
       end
       context 'with invalid filtering param "q[fgiven_name_cont]=Pat"' do
-        before { get '/api/authors?q[fgiven_name_cont]=Pat' }
+        before { get '/api/authors?q[fgiven_name_cont]=Pat', headers: headers }
 
         it 'receives HTTP status 400 Bad Request' do
           expect(response.status).to eq 400
@@ -179,7 +184,7 @@ RSpec.describe 'Authors', type: :request do
 
   describe 'GET /api/authors/:id' do
     context 'with existing resource' do
-      before { get "/api/authors/#{sam.id}" }
+      before { get "/api/authors/#{sam.id}", headers: headers }
 
       it 'receives status 200' do
         expect(response.status).to eq 200
@@ -190,7 +195,7 @@ RSpec.describe 'Authors', type: :request do
       end
     end
     context 'with nonexistent resource' do
-      before { get '/api/authors/326874632876' }
+      before { get '/api/authors/326874632876', headers: headers }
 
       it 'receives status 404 Not Found' do
         expect(response.status).to eq 404
@@ -199,7 +204,7 @@ RSpec.describe 'Authors', type: :request do
   end
 
   describe 'POST /api/authors' do
-    before { post '/api/authors', params: { data: params } }
+    before { post '/api/authors', params: { data: params }, headers: headers }
 
     context 'with valid parameters' do
       let(:params) { { family_name: 'Liang', given_name: 'Bran' } }
@@ -241,7 +246,7 @@ RSpec.describe 'Authors', type: :request do
   end
 
   describe 'PATCH /api/authors/:id' do
-    before { patch "/api/authors/#{sam.id}", params: { data: params } }
+    before { patch "/api/authors/#{sam.id}", params: { data: params }, headers: headers }
 
     context 'with valid parameters' do
       let(:params) { { family_name: 'Liang' } }
@@ -275,7 +280,7 @@ RSpec.describe 'Authors', type: :request do
 
   describe 'DELETE /api/authors/:id' do
     context 'with existing resource' do
-      before { delete "/api/authors/#{sam.id}" }
+      before { delete "/api/authors/#{sam.id}", headers: headers }
 
       it 'receives status 204' do
         expect(response.status).to eq 204
@@ -287,7 +292,7 @@ RSpec.describe 'Authors', type: :request do
     end
     context 'with nonexistent resource' do
       it 'receives status 404 Not Found' do
-        delete '/api/authors/3278947329847392'
+        delete '/api/authors/3278947329847392', headers: headers
         expect(response.status).to eq 404
       end
     end
