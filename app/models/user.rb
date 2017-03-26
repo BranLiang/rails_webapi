@@ -17,6 +17,32 @@ class User < ApplicationRecord
   validates :confirmation_token, presence: true,
                                  uniqueness: { case_sensitive: true }
 
+  def confirm
+    update_columns({
+      confirmation_token: nil,
+      confirmed_at: Time.now
+      })
+  end
+
+  def init_password_reset(redirect_url)
+    assign_attributes({
+      reset_password_token: SecureRandom.hex,
+      reset_password_sent_at: Time.now,
+      reset_password_redirect_url: redirect_url
+      })
+      save
+  end
+
+  def complete_password_resets(password)
+    assign_attributes({
+      password: password,
+      reset_password_token: nil,
+      reset_password_sent_at: nil,
+      reset_password_redirect_url: nil
+    })
+    save
+  end
+
   private
 
   def generate_confirmation_token
