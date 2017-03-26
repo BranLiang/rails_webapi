@@ -1,5 +1,6 @@
 class UsersController < ApplicationController
   before_action :authenticate_user, only: [:index, :show, :update, :destroy]
+  before_action :authorize_actions
 
   def index
     users = orchestrate_query(User.all)
@@ -37,6 +38,7 @@ class UsersController < ApplicationController
   def user
     @user ||= params[:id] ? User.find_by!(id: params[:id]) : User.new(user_params)
   end
+  alias_method :resource, :user
 
   def user_params
     params.require(:data).permit(:email, :password,

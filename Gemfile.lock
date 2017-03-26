@@ -102,6 +102,8 @@ GEM
       pry (~> 0.10)
     public_suffix (2.0.5)
     puma (3.8.1)
+    pundit (1.1.0)
+      activesupport (>= 3.0.0)
     rack (2.0.1)
     rack-test (0.6.3)
       rack (>= 1.0)
@@ -193,6 +195,7 @@ DEPENDENCIES
   pg_search
   pry-byebug
   puma (~> 3.7)
+  pundit
   rails (~> 5.1.0.beta1)
   rspec-rails
   shoulda-matchers

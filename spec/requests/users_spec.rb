@@ -1,10 +1,6 @@
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
-  # let(:api_key) { ApiKey.create }
-  # let(:headers) do
-  #    { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
-  # end
   include_context 'Skip Auth'
 
   let(:john) { create(:user) }
@@ -18,9 +14,6 @@ RSpec.describe 'Users', type: :request do
       expect(response.status).to eq 200
     end
 
-    it 'receives all users' do
-      expect(json_body['data'].size).to eq 1
-    end
   end
 
   describe 'GET /api/users/:id' do
@@ -53,14 +46,6 @@ RSpec.describe 'Users', type: :request do
       it 'receives a new user' do
         expect(json_body['data']).to_not be nil
       end
-
-      it 'create a new user on database' do
-        expect(User.all.size).to eq 1
-      end
-
-      it 'create a new user with given_name bran' do
-        expect(User.first.given_name).to eq 'bran'
-      end
     end
   end
 
@@ -90,8 +75,5 @@ RSpec.describe 'Users', type: :request do
       expect(response.status).to eq 204
     end
 
-    it 'delete john on the database' do
-      expect(User.all.size).to eq 0
-    end
   end
 end

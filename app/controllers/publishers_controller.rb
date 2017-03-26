@@ -1,5 +1,6 @@
 class PublishersController < ApplicationController
   before_action :authenticate_user, only: [:create, :update, :destroy]
+  before_action :authorize_actions
 
   def index
     publishers = orchestrate_query(Publisher.all)
@@ -37,6 +38,7 @@ private
     @publisher ||= params[:id] ? Publisher.find_by!(id: params[:id]) :
                                  Publisher.new(publisher_params)
   end
+  alias_method :resource, :publisher
 
   def publisher_params
     params.require(:data).permit(:name)
