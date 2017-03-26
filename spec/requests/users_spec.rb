@@ -1,17 +1,18 @@
 require 'rails_helper'
 
 RSpec.describe 'Users', type: :request do
-  let(:api_key) { ApiKey.create }
-  let(:headers) do
-     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
-  end
+  # let(:api_key) { ApiKey.create }
+  # let(:headers) do
+  #    { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
+  # end
+  include_context 'Skip Auth'
 
   let(:john) { create(:user) }
   let(:users) { [john] }
 
   describe 'GET /api/users' do
     before { users }
-    before { get "/api/users", headers: headers }
+    before { get "/api/users" }
 
     it 'receives status 200' do
       expect(response.status).to eq 200
@@ -23,7 +24,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'GET /api/users/:id' do
-    before { get "/api/users/#{john.id}", headers: headers }
+    before { get "/api/users/#{john.id}" }
 
     it 'receives status 200' do
       expect(response.status).to eq 200
@@ -35,7 +36,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'POST /api/users' do
-    before { post "/api/users", headers: headers, params: { data: params } }
+    before { post "/api/users", params: { data: params } }
 
     context "with valid params" do
       let(:params) { {
@@ -64,7 +65,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'PATCH /api/users/:id' do
-    before { patch "/api/users/#{john.id}", headers: headers, params: { data: params } }
+    before { patch "/api/users/#{john.id}", params: { data: params } }
     let(:params) { {
       given_name: 'test_name'
       } }
@@ -83,7 +84,7 @@ RSpec.describe 'Users', type: :request do
   end
 
   describe 'DELETE /api/users/:id' do
-    before { delete "/api/users/#{john.id}", headers: headers }
+    before { delete "/api/users/#{john.id}" }
 
     it 'receives status 204' do
       expect(response.status).to eq 204

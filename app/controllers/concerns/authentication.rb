@@ -19,6 +19,10 @@ module Authentication
     unauthorized!('Clent Realm') unless api_key
   end
 
+  def authenticate_user
+    unauthorized!('User Realm') unless access_token
+  end
+
   def unauthorized!(realm)
     headers['WWW-Authenticate'] = %(#{AUTH_SCHEMA} realm="#{realm}")
     render(status: 401)
@@ -28,25 +32,20 @@ module Authentication
     @authorization_request ||= request.authorization.to_s
   end
 
-  def credentials
-    @credentials ||= Hash[authorization_request.scan(/(\w+)[:=] ?"?([\w|:]+)"?/)]
+  def authenticator
+    @authenticator ||= Authenticator.new(authorization_request)
   end
 
   def api_key
-    @api_key ||= compute_api_key
+    @api_key ||= authenticator.api_key
   end
 
-  def compute_api_key
-    return nil if credentials['api_key'].blank?
-
-    access_key, key = credentials['api_key'].split(':')
-    api_key = access_key && key && ApiKey.activated.find_by(access_key: access_key)
-
-    return api_key if api_key && secure_compare_with_hashing(api_key.key, key)
+  def access_token
+    @access_token ||= authenticator.access_token
   end
 
-  def secure_compare_with_hashing(a, b)
-    secure_compare(Digest::SHA1.hexdigest(a), Digest::SHA1.hexdigest(b))
+  def current_user
+    @current_user ||= access_token.try(:user)
   end
 
 

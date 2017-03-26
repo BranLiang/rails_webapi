@@ -1,10 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Publishers', tyep: :request do
-  let(:api_key) { ApiKey.create }
-  let(:headers) do
-     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
-  end
+  include_context 'Skip Auth'
+
   let(:oreilly) { create(:publisher) }
   let(:dev_media) { create(:super_books) }
   let(:super_books) { create(:super_books) }
@@ -13,7 +11,7 @@ RSpec.describe 'Publishers', tyep: :request do
   describe 'GET /api/publishers' do
     before { publishers }
     context 'default behavior' do
-      before { get '/api/publishers', headers: headers }
+      before { get '/api/publishers' }
 
       it 'receives status 200' do
         expect(response.status).to eq 200
@@ -26,7 +24,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
     describe 'field picking' do
       context 'with the fields parameter' do
-        before { get '/api/publishers?fields=name', headers: headers }
+        before { get '/api/publishers?fields=name' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -39,7 +37,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'without the field parameter' do
-        before { get '/api/publishers', headers: headers }
+        before { get '/api/publishers' }
 
         it 'return all entities' do
           json_body['data'].each do |publisher|
@@ -48,7 +46,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'with invalid field name "fid"' do
-        before { get '/api/publishers?fields=fid', headers: headers }
+        before { get '/api/publishers?fields=fid' }
 
         it 'receives status 400 Bad Request' do
           expect(response.status).to eq 400
@@ -66,7 +64,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
     describe 'pagination' do
       context 'when asking for the first page' do
-        before { get '/api/publishers?page=1&per=2', headers: headers }
+        before { get '/api/publishers?page=1&per=2' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -83,7 +81,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'when asking for the second page' do
-        before { get '/api/publishers?page=2&per=2', headers: headers }
+        before { get '/api/publishers?page=2&per=2' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -94,7 +92,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'when sending invalid "page" and "per" parameters' do
-        before { get '/api/publishers?page=fpage&per=2', headers: headers }
+        before { get '/api/publishers?page=fpage&per=2' }
 
         it 'receives status 400 Bad Request' do
           expect(response.status).to eq 400
@@ -112,7 +110,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
     describe 'sorting' do
       context 'with valid column name "id"' do
-        before { get '/api/publishers?sort=id&dir=asc', headers: headers }
+        before { get '/api/publishers?sort=id&dir=asc' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -127,7 +125,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'with invalid column name "fid"' do
-        before { get '/api/publishers?sort=fid&dir=desc', headers: headers }
+        before { get '/api/publishers?sort=fid&dir=desc' }
 
         it 'receives status 400' do
           expect(response.status).to eq 400
@@ -145,7 +143,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
     describe 'filtering' do
       context 'with valid filtering param "q[name_cont]=reilly"' do
-        before { get '/api/publishers?q[name_cont]=reilly', headers: headers }
+        before { get '/api/publishers?q[name_cont]=reilly' }
 
         it 'receives status 200' do
           expect(response.status).to eq 200
@@ -160,7 +158,7 @@ RSpec.describe 'Publishers', tyep: :request do
         end
       end
       context 'with invalid filtering param "q[fname_cont]=reilly"' do
-        before { get '/api/publishers?q[fname_cont]=reilly', headers: headers }
+        before { get '/api/publishers?q[fname_cont]=reilly' }
 
         it 'receives status 400' do
           expect(response.status).to eq 400
@@ -179,7 +177,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
   describe 'GET /api/publishers/:id' do
     context 'with existing resource' do
-      before { get "/api/publishers/#{super_books.id}", headers: headers }
+      before { get "/api/publishers/#{super_books.id}" }
 
       it 'receives status 200' do
         expect(response.status).to eq 200
@@ -190,7 +188,7 @@ RSpec.describe 'Publishers', tyep: :request do
       end
     end
     context 'with nonexistent resource' do
-      before { get '/api/publishers/326874632', headers: headers }
+      before { get '/api/publishers/326874632' }
 
       it 'receives status 404' do
         expect(response.status).to eq 404
@@ -199,7 +197,7 @@ RSpec.describe 'Publishers', tyep: :request do
   end
 
   describe 'POST /api/publishers' do
-    before { post "/api/publishers", params: { data: params }, headers: headers }
+    before { post "/api/publishers", params: { data: params } }
     context 'with valid parameters' do
       let(:params) { { name: "branliang" } }
 
@@ -235,7 +233,7 @@ RSpec.describe 'Publishers', tyep: :request do
   end
 
   describe 'PATCH /api/publishers/:id' do
-    before { patch "/api/publishers/#{super_books.id}", params: { data: params }, headers: headers }
+    before { patch "/api/publishers/#{super_books.id}", params: { data: params } }
     context 'with valid parameters' do
       let(:params) { { name: 'branliang' } }
 
@@ -268,7 +266,7 @@ RSpec.describe 'Publishers', tyep: :request do
 
   describe 'DELETE /api/publishers/:id' do
     context 'with existing resource' do
-      before { delete "/api/publishers/#{super_books.id}", headers: headers }
+      before { delete "/api/publishers/#{super_books.id}" }
 
       it 'receives status 204' do
         expect(response.status).to eq 204
@@ -280,7 +278,7 @@ RSpec.describe 'Publishers', tyep: :request do
     end
     context 'with nonexistent resource' do
       it 'receives status 404' do
-        delete '/api/publishers/23897982', headers: headers
+        delete '/api/publishers/23897982'
         expect(response.status).to eq 404
       end
     end

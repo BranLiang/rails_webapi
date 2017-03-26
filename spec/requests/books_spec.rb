@@ -1,10 +1,8 @@
 require 'rails_helper'
 
 RSpec.describe 'Books', type: :request do
-  let(:api_key) { ApiKey.create }
-  let(:headers) do
-     { 'HTTP_AUTHORIZATION' => "Alexandria-Token api_key=#{api_key.access_key}:#{api_key.key}" }
-  end
+  include_context 'Skip Auth'
+
   let(:ruby_microscope) { create(:ruby_microscope) }
   let(:rails_tutorial) { create(:ruby_on_rails_tutorial) }
   let(:agile_web_dev) { create(:agile_web_development) }
@@ -14,7 +12,7 @@ RSpec.describe 'Books', type: :request do
     before { books }
 
     context 'default behavior' do
-      before { get '/api/books', headers: headers }
+      before { get '/api/books' }
 
       it 'receives HTTP status 200' do
         expect(response.status).to eq 200
@@ -31,7 +29,7 @@ RSpec.describe 'Books', type: :request do
 
     describe 'field picking' do
       context 'with the fields parameter' do
-        before { get '/api/books?fields=id,title,author_id', headers: headers }
+        before { get '/api/books?fields=id,title,author_id' }
 
         it 'gets books with only the id, title and author_id keys' do
           json_body['data'].each do |book|
@@ -41,7 +39,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context 'without the "fields" parameter' do
-        before { get '/api/books', headers: headers }
+        before { get '/api/books' }
 
         it 'gets books with all the fields specified in the presenter' do
           json_body['data'].each do |book|
@@ -51,7 +49,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context 'with invalid field name "fid"' do
-        before { get('/api/books?fields=fid,title,author_id', headers: headers) }
+        before { get('/api/books?fields=fid,title,author_id') }
 
         it 'gets "400 Bad Request" back' do
           expect(response.status).to eq 400
@@ -69,7 +67,7 @@ RSpec.describe 'Books', type: :request do
 
     describe 'embed picking' do
       context 'with the "embed" paramter' do
-        before { get('/api/books?embed=author', headers: headers) }
+        before { get('/api/books?embed=author') }
 
         it 'gets the books with their authors embedded' do
           json_body['data'].each do |book|
@@ -81,7 +79,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context 'with invalid "embed" relation "fake"' do
-        before { get('/api/books?embed=fake,author', headers: headers) }
+        before { get('/api/books?embed=fake,author') }
 
         it 'gets "400 Bad Request" back' do
           expect(response.status).to eq 400
@@ -99,7 +97,7 @@ RSpec.describe 'Books', type: :request do
 
     describe 'pagination' do
       context 'when asking for the first page' do
-        before { get('/api/books?page=1&per=2', headers: headers) }
+        before { get('/api/books?page=1&per=2') }
 
         it 'receives HTTP status 200' do
           expect(response.status).to eq 200
@@ -117,7 +115,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context 'when asking for the second page' do
-        before { get('/api/books?page=2&per=2', headers: headers) }
+        before { get('/api/books?page=2&per=2') }
 
         it 'receives HTTP status 200' do
           expect(response.status).to eq 200
@@ -129,7 +127,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context 'when sending invalid "page" and "per" parameters' do
-        before { get('/api/books?page=fake&per=10', headers: headers) }
+        before { get('/api/books?page=fake&per=10') }
 
         it 'receives HTTP status 400' do
           expect(response.status).to eq 400
@@ -137,7 +135,7 @@ RSpec.describe 'Books', type: :request do
       end
 
       context "when sending invalid 'page' and 'per' parameters" do
-        before { get('/api/books?page=fake&per=10', headers: headers) }
+        before { get('/api/books?page=fake&per=10') }
 
         it 'receives HTTP status 400' do
           expect(response.status).to eq 400
@@ -156,14 +154,14 @@ RSpec.describe 'Books', type: :request do
     describe 'sorting' do
       context 'with valid column name' do
         it 'sorts the books by "id desc"' do
-          get('/api/books?sort=id&dir=desc', headers: headers)
+          get('/api/books?sort=id&dir=desc')
           expect(json_body['data'].first['id']).to eq agile_web_dev.id
           expect(json_body['data'].last['id']).to eq ruby_microscope.id
         end
       end
 
       context 'with invalid column name "fid"' do
-        before { get '/api/books?sort=fid&dir=asc', headers: headers }
+        before { get '/api/books?sort=fid&dir=asc' }
         it 'gets "400 Bad Request" back' do
           expect(response.status).to eq 400
         end
@@ -181,14 +179,14 @@ RSpec.describe 'Books', type: :request do
     describe 'filtering' do
       context 'with valid filtering param "q[title_cont]=Microscope"' do
         it 'receives "Ruby under a microscope" back' do
-          get('/api/books?q[title_cont]=Microscope', headers: headers)
+          get('/api/books?q[title_cont]=Microscope')
           expect(json_body['data'].first['id']).to eq ruby_microscope.id
           expect(json_body['data'].size).to eq 1
         end
       end
 
       context 'with invalid filtering param "q[ftitle_cont]=Microscope"' do
-        before { get('/api/books?q[ftitle_cont]=Ruby', headers: headers) }
+        before { get('/api/books?q[ftitle_cont]=Ruby') }
 
         it 'gets "400 Bad request"' do
           expect(response.status).to eq 400
@@ -208,7 +206,7 @@ RSpec.describe 'Books', type: :request do
   describe 'GET /api/books/:id' do
 
     context 'with existing resource' do
-      before { get "/api/books/#{rails_tutorial.id}", headers: headers }
+      before { get "/api/books/#{rails_tutorial.id}" }
 
       it 'gets HTTP status 200' do
         expect(response.status).to eq 200
@@ -222,7 +220,7 @@ RSpec.describe 'Books', type: :request do
 
     context 'with nonexistent resource' do
       it 'gets HTTP status 404' do
-        get '/api/books/232138729', headers: headers
+        get '/api/books/232138729'
         expect(response.status).to eq 404
       end
     end
@@ -231,7 +229,7 @@ RSpec.describe 'Books', type: :request do
 
   describe 'POST /api/books' do
     let(:author) { create(:michael_hartl) }
-    before { post '/api/books', params: { data: params }, headers: headers }
+    before { post '/api/books', params: { data: params } }
 
     context 'with valid parameters' do
       let(:params) do
@@ -278,7 +276,7 @@ RSpec.describe 'Books', type: :request do
   end # End of describe 'POST /api/books'
 
   describe 'PATCH /api/books/:id' do
-    before { patch "/api/books/#{rails_tutorial.id}", params: { data: params }, headers: headers }
+    before { patch "/api/books/#{rails_tutorial.id}", params: { data: params } }
 
     context 'with valid parameters' do
       let(:params) { { title: 'The Ruby on Rails Tutorial' } }
@@ -319,7 +317,7 @@ RSpec.describe 'Books', type: :request do
 
   describe 'DELETE /api/books/:id' do
     context 'with existing resource' do
-      before { delete "/api/books/#{rails_tutorial.id}", headers: headers }
+      before { delete "/api/books/#{rails_tutorial.id}" }
 
       it 'gets HTTP status 204' do
         expect(response.status).to eq 204
@@ -332,7 +330,7 @@ RSpec.describe 'Books', type: :request do
 
     context 'with nonexistent resource' do
       it 'gets HTTP status 404' do
-        delete '/api/books/3284632868', headers: headers
+        delete '/api/books/3284632868'
         expect(response.status).to eq 404
       end
     end
